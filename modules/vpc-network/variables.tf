@@ -74,6 +74,13 @@ variable "log_config" {
   }
 }
 
+variable additional_allowed_private_subnetworks {
+  description = "Additional private networks that are allowed access to the private subnetwork of the network. Useful for VPNs"
+  default     = []
+  type        = list(string)
+}
+
+
 variable allowed_public_restricted_subnetworks {
   description = "The public networks that is allowed access to the public_restricted subnetwork of the network"
   default     = []

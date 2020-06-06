@@ -19,6 +19,12 @@ variable allowed_public_restricted_subnetworks {
   type        = list(string)
 }
 
+variable additional_allowed_private_subnetworks {
+  description = "Additional private networks that are allowed access to the private subnetwork of the network. Useful for VPNs"
+  default     = []
+  type        = list(string)
+}
+
 variable "private_subnetwork" {
   description = "A reference (self_link) to the private subnetwork of the network"
   type        = string
