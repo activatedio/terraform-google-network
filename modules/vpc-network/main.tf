@@ -126,7 +126,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork_private" {
 
 resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
 
-  for_each = var.proxy_only_subnet ? {
+  for_each = var.proxy_only_subnetwork ? {
     primary = {
       role = "ACTIVE"
       offset = 2
