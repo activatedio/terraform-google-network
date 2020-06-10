@@ -86,3 +86,9 @@ variable allowed_public_restricted_subnetworks {
   default     = []
   type        = list(string)
 }
+
+variable proxy_only_subnetwork {
+  description = "If true, create a proxy only subnet. Requires beta provider."
+  default     = false
+  type        = bool
+}

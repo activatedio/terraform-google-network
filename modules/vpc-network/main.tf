@@ -121,6 +121,49 @@ resource "google_compute_subnetwork" "vpc_subnetwork_private" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
+# Proxy Subnetwork Config
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
+
+  for_each = var.proxy_only_subnet ? {
+    primary = {
+      role = "ACTIVE"
+      offset = 2
+    },
+    backup = {
+      role = "BACKUP"
+      offset = 3
+    }
+  } : {}
+
+  name = "${var.name_prefix}-subnetwork-proxy-${each.key}"
+
+  project = var.project
+  region  = var.region
+  network = google_compute_network.vpc.self_link
+
+  purpose = "INTERNAL_HTTPS_LOAD_BALANCER"
+  role = each.value["role"]
+
+  ip_cidr_range = cidrsubnet(
+    var.cidr_block,
+    var.cidr_subnetwork_width_delta,
+    each.value["offset"] * (1 + var.cidr_subnetwork_spacing)
+  )
+
+  dynamic "log_config" {
+    for_each = var.log_config == null ? [] : list(var.log_config)
+
+    content {
+      aggregation_interval = var.log_config.aggregation_interval
+      flow_sampling        = var.log_config.flow_sampling
+      metadata             = var.log_config.metadata
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # Attach Firewall Rules to allow inbound traffic to tagged instances
 # ---------------------------------------------------------------------------------------------------------------------
 
