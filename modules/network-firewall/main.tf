@@ -11,6 +11,14 @@ data "google_compute_subnetwork" "private_subnetwork" {
   self_link = var.private_subnetwork
 }
 
+data "google_compute_subnetwork" "active_proxy_subnetwork" {
+  self_link = var.active_proxy_subnetwork
+}
+
+data "google_compute_subnetwork" "backup_proxy_subnetwork" {
+  self_link = var.backup_proxy_subnetwork
+}
+
 // Define tags as locals so they can be interpolated off of + exported
 locals {
   public              = "public"
@@ -83,6 +91,8 @@ resource "google_compute_firewall" "private_allow_all_network_inbound" {
     data.google_compute_subnetwork.public_subnetwork.secondary_ip_range[0].ip_cidr_range,
     data.google_compute_subnetwork.private_subnetwork.ip_cidr_range,
     data.google_compute_subnetwork.private_subnetwork.secondary_ip_range[0].ip_cidr_range,
+    data.google_compute_subnetwork.active_proxy_subnetwork.ip_cidr_range,
+    data.google_compute_subnetwork.backup_proxy_subnetwork.ip_cidr_range,
   ], var.additional_allowed_private_subnetworks)
 
   priority = "1000"

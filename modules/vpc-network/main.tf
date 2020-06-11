@@ -128,7 +128,8 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
 
   provider = "google-beta"
 
-  for_each = var.proxy_only_subnetwork ? {
+  for_each = {
+    # TODO - Need a name change here
     primary = {
       role = "ACTIVE"
       offset = 2
@@ -137,7 +138,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
       role = "BACKUP"
       offset = 3
     }
-  } : {}
+  }
 
   name = "${var.name_prefix}-subnetwork-proxy-${each.key}"
 
@@ -172,19 +173,7 @@ module "network_firewall" {
 
   public_subnetwork  = google_compute_subnetwork.vpc_subnetwork_public.self_link
   private_subnetwork = google_compute_subnetwork.vpc_subnetwork_private.self_link
-}
-
-module "network_firewall_proxy" {
-
-  count = var.proxy_only_subnetwork ? 1 : 0
-
-  source = "../network-firewall-proxy"
-
-  name_prefix = var.name_prefix
-
-  project                               = var.project
-  network                               = google_compute_network.vpc.self_link
-
   active_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["primary"].self_link
   backup_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["backup"].self_link
 }
+

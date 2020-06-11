@@ -30,6 +30,16 @@ variable "private_subnetwork" {
   type        = string
 }
 
+variable "active_proxy_subnetwork" {
+  description = "A reference (self_link) to the active proxy subnetwork of the network"
+  type        = string
+}
+
+variable "backup_proxy_subnetwork" {
+  description = "A reference (self_link) to the backup proxy subnetwork of the network"
+  type        = string
+}
+
 variable "project" {
   description = "The project to create the firewall rules in. Must match the network project."
   type        = string
