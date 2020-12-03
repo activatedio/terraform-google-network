@@ -81,7 +81,7 @@ resource "google_compute_router_nat" "vpc_nat" {
     for_each = google_compute_subnetwork.vpc_subnetwork_private
 
     content {
-      name                    = each.self_link
+      name                    = each.value.self_link
       source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
     }
   }
