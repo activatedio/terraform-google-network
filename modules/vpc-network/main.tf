@@ -96,7 +96,6 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
   provider = "google-beta"
 
   for_each = {
-    # TODO - Need a name change here
     active = {
       role = "ACTIVE"
       offset = 1
@@ -140,6 +139,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork_private" {
   network = google_compute_network.vpc.self_link
 
   private_ip_google_access = true
+
   ip_cidr_range = cidrsubnet(
     var.cidr_block,
     var.cidr_subnetwork_width_delta,

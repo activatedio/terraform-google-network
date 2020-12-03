@@ -8,7 +8,7 @@ data "google_compute_subnetwork" "public_subnetwork" {
 }
 
 data "google_compute_subnetwork" "private_subnetworks" {
-  for_each = var.private_subnetworks
+  for_each = toset(var.private_subnetworks)
   self_link = each.value
 }
 
