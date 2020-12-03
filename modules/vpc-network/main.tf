@@ -96,7 +96,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
   provider = "google-beta"
 
   for_each = {
-    active = {
+    primary = {
       role = "ACTIVE"
       offset = 1
     },
@@ -182,7 +182,7 @@ module "network_firewall" {
 
   public_subnetwork  = google_compute_subnetwork.vpc_subnetwork_public.self_link
   private_subnetworks = google_compute_subnetwork.vpc_subnetwork_private.*.self_link
-  active_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["active"].self_link
+  active_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["primary"].self_link
   backup_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["backup"].self_link
 }
 

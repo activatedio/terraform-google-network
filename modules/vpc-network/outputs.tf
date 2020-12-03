@@ -55,12 +55,8 @@ output "private_subnetwork_gateway" {
   value = google_compute_subnetwork.vpc_subnetwork_private.*.gateway_address
 }
 
-output "private_subnetwork_secondary_cidr_block" {
-  value = google_compute_subnetwork.vpc_subnetwork_private.*.secondary_ip_range[0].ip_cidr_range
-}
-
-output "private_subnetwork_secondary_range_name" {
-  value = google_compute_subnetwork.vpc_subnetwork_private.*.secondary_ip_range[0].range_name
+output "private_subnetwork_secondary_ip_range" {
+  value = google_compute_subnetwork.vpc_subnetwork_private.*.secondary_ip_range
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
