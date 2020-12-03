@@ -76,10 +76,15 @@ resource "google_compute_router_nat" "vpc_nat" {
   # "Manually" define the subnetworks for which the NAT is used, so that we can exclude the public subnetwork
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
-  subnetwork {
-    name                    = google_compute_subnetwork.vpc_subnetwork_private.self_link
-    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  dynamic "subnetwork" {
+    for_each = google_compute_subnetwork.vpc_subnetwork_private
+
+    content {
+      name                    = each.value.self_link
+      source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+    }
   }
+
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
