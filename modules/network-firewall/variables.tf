@@ -25,9 +25,10 @@ variable additional_allowed_private_subnetworks {
   type        = list(string)
 }
 
-variable "private_subnetwork" {
-  description = "A reference (self_link) to the private subnetwork of the network"
-  type        = string
+variable "private_subnetworks" {
+  description = "A list of references (self_link) to the private subnetworks"
+  default     = []
+  type        = list(string)
 }
 
 variable "active_proxy_subnetwork" {

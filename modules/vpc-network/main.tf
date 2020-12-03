@@ -83,44 +83,6 @@ resource "google_compute_router_nat" "vpc_nat" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Private Subnetwork Config
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "google_compute_subnetwork" "vpc_subnetwork_private" {
-  name = "${var.name_prefix}-subnetwork-private"
-
-  project = var.project
-  region  = var.region
-  network = google_compute_network.vpc.self_link
-
-  private_ip_google_access = true
-  ip_cidr_range = cidrsubnet(
-    var.cidr_block,
-    var.cidr_subnetwork_width_delta,
-    1 * (1 + var.cidr_subnetwork_spacing)
-  )
-
-  secondary_ip_range {
-    range_name = "private-services"
-    ip_cidr_range = cidrsubnet(
-      var.secondary_cidr_block,
-      var.secondary_cidr_subnetwork_width_delta,
-      1 * (1 + var.secondary_cidr_subnetwork_spacing)
-    )
-  }
-
-  dynamic "log_config" {
-    for_each = var.log_config == null ? [] : list(var.log_config)
-
-    content {
-      aggregation_interval = var.log_config.aggregation_interval
-      flow_sampling        = var.log_config.flow_sampling
-      metadata             = var.log_config.metadata
-    }
-  }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
 # Proxy Subnetwork Config
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -130,13 +92,13 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
 
   for_each = {
     # TODO - Need a name change here
-    primary = {
+    active = {
       role = "ACTIVE"
-      offset = 2
+      offset = 1
     },
     backup = {
       role = "BACKUP"
-      offset = 3
+      offset = 2
     }
   }
 
@@ -157,6 +119,48 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
 
 }
 
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Private Subnetwork Config
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_compute_subnetwork" "vpc_subnetwork_private" {
+
+  for_each = var.private_subnetworks
+
+  name = "${var.name_prefix}-subnetwork-private"
+
+  project = var.project
+  region  = var.region
+  network = google_compute_network.vpc.self_link
+
+  private_ip_google_access = true
+  ip_cidr_range = cidrsubnet(
+    var.cidr_block,
+    var.cidr_subnetwork_width_delta,
+    (3 + index(var.private_subnetworks, each.value)) * (1 + var.cidr_subnetwork_spacing)
+  )
+
+  secondary_ip_range {
+    range_name = "private-services"
+    ip_cidr_range = cidrsubnet(
+      var.secondary_cidr_block,
+      var.secondary_cidr_subnetwork_width_delta,
+      (3 + index(var.private_subnetworks, each.value)) *  (1 + var.secondary_cidr_subnetwork_spacing)
+    )
+  }
+
+  dynamic "log_config" {
+    for_each = var.log_config == null ? [] : list(var.log_config)
+
+    content {
+      aggregation_interval = var.log_config.aggregation_interval
+      flow_sampling        = var.log_config.flow_sampling
+      metadata             = var.log_config.metadata
+    }
+  }
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Attach Firewall Rules to allow inbound traffic to tagged instances
 # ---------------------------------------------------------------------------------------------------------------------
@@ -172,8 +176,8 @@ module "network_firewall" {
   additional_allowed_private_subnetworks = var.additional_allowed_private_subnetworks
 
   public_subnetwork  = google_compute_subnetwork.vpc_subnetwork_public.self_link
-  private_subnetwork = google_compute_subnetwork.vpc_subnetwork_private.self_link
-  active_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["primary"].self_link
+  private_subnetworks = google_compute_subnetwork.vpc_subnetwork_private.*.self_link
+  active_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["active"].self_link
   backup_proxy_subnetwork = google_compute_subnetwork.vpc_subnetwork_proxy["backup"].self_link
 }
 
