@@ -130,7 +130,7 @@ resource "google_compute_subnetwork" "vpc_subnetwork_proxy" {
 
 resource "google_compute_subnetwork" "vpc_subnetwork_private" {
 
-  for_each = var.private_subnetworks
+  for_each = toset(var.private_subnetworks)
 
   name = "${var.name_prefix}-subnetwork-private"
 
